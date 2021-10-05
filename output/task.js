@@ -5,7 +5,8 @@ var EmployeeOrgApp = /** @class */ (function () {
         this.redoAbles = [];
         this.ceo = ceo;
     }
-    EmployeeOrgApp.prototype.adjustTree = function (supervisor, pos) {
+    EmployeeOrgApp.prototype.adjustTree = function (supervisor, pos, addOnUndo) {
+        if (addOnUndo === void 0) { addOnUndo = true; }
         var employee = supervisor.subordinates.splice(pos, 1)[0];
         var action = {
             employeeID: employee.uniqueId,
@@ -20,16 +21,19 @@ var EmployeeOrgApp = /** @class */ (function () {
                 supervisor.subordinates.push(obj);
             }
         }
-        this.undoAbles.push(action);
+        if (addOnUndo === true) {
+            this.undoAbles.push(action);
+        }
         return employee;
     };
-    EmployeeOrgApp.prototype.getEmployee = function (employee, employeeID) {
+    EmployeeOrgApp.prototype.getEmployee = function (employee, employeeID, addOnUndo) {
+        if (addOnUndo === void 0) { addOnUndo = true; }
         for (var i = 0; i < employee.subordinates.length; i++) {
             if (employee.subordinates[i].uniqueId === employeeID) {
-                return this.adjustTree(employee, i);
+                return this.adjustTree(employee, i, addOnUndo);
             }
             else if (employee.subordinates[i].subordinates.length) {
-                var obj = this.getEmployee(employee.subordinates[i], employeeID);
+                var obj = this.getEmployee(employee.subordinates[i], employeeID, addOnUndo);
                 if (obj !== null) {
                     return obj;
                 }
@@ -60,7 +64,9 @@ var EmployeeOrgApp = /** @class */ (function () {
             return;
         }
         this.setEmployee(this.ceo, supervisorID, employee);
-        this.undoAbles[this.undoAbles.length - 1].supervisorID = supervisorID;
+        if (this.undoAbles.length) {
+            this.undoAbles[this.undoAbles.length - 1].supervisorID = supervisorID;
+        }
         this.redoAbles = [];
     };
     EmployeeOrgApp.prototype.moveForUndo = function (parentEmployee, employee, action) {
@@ -92,11 +98,10 @@ var EmployeeOrgApp = /** @class */ (function () {
         var obj = this.undoAbles.pop();
         if (obj !== undefined) {
             // { employeeID: 3, parentID: 2, supervisorID: -1, childeIDS: [ 4, 5 ] }
-            var employee = this.getEmployee(this.ceo, obj.employeeID);
+            var employee = this.getEmployee(this.ceo, obj.employeeID, false);
             if (employee !== null) {
                 this.moveForUndo(this.ceo, employee, obj);
             }
-            // this.redoAbles.push(obj);
         }
         else {
             console.log("Nothing is undoable");
@@ -106,7 +111,6 @@ var EmployeeOrgApp = /** @class */ (function () {
         var obj = this.redoAbles.pop();
         if (obj !== undefined) {
             this.move(obj.employeeID, obj.supervisorID);
-            // this.undoAbles.push(obj);
         }
         else {
             console.log("Nothing is redoable");
@@ -193,31 +197,38 @@ var ceo = {
     ],
 };
 /**
-  Mark Zuckerberg:
-      - Sarah Donald:
-          - Cassandra Reynolds:
-              - Mary Blue:
-              - Bob Saget:
-                  - Tina Teff:
-                      - Will Turner:
-      - Tyler Simpson:
-          - Harry Tobs:
-              - Thomas Brown:
-          - George Carrey:
-          - Gary Styles:
-      - Bruce Willis:
-      - Georgina Flangy:
-          - Sophie Turner:
-  */
+Mark Zuckerberg:
+    - Sarah Donald:
+        - Cassandra Reynolds:
+            - Mary Blue:
+            - Bob Saget:
+                - Tina Teff:
+                    - Will Turner:
+    - Tyler Simpson:
+        - Harry Tobs:
+            - Thomas Brown:
+        - George Carrey:
+        - Gary Styles:
+    - Bruce Willis:
+    - Georgina Flangy:
+        - Sophie Turner:
+*/
 var app = new EmployeeOrgApp(ceo);
 app.print();
 console.log("");
 app.move(3, 10);
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");
 app.undo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");
 app.redo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
+app.print();
+console.log("");
+app.undo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");

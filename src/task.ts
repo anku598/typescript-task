@@ -25,7 +25,7 @@ class EmployeeOrgApp implements IEmployeeOrgApp {
     this.ceo = ceo;
   }
 
-  adjustTree(supervisor: Employee, pos: number): Employee {
+  adjustTree(supervisor: Employee, pos: number, addOnUndo = true): Employee {
     const employee = supervisor.subordinates.splice(pos, 1)[0];
     const action: Action = {
       employeeID: employee.uniqueId,
@@ -41,16 +41,26 @@ class EmployeeOrgApp implements IEmployeeOrgApp {
         supervisor.subordinates.push(obj);
       }
     }
-    this.undoAbles.push(action);
+    if (addOnUndo === true) {
+      this.undoAbles.push(action);
+    }
     return employee;
   }
 
-  getEmployee(employee: Employee, employeeID: number): null | Employee {
+  getEmployee(
+    employee: Employee,
+    employeeID: number,
+    addOnUndo = true
+  ): null | Employee {
     for (let i = 0; i < employee.subordinates.length; i++) {
       if (employee.subordinates[i].uniqueId === employeeID) {
-        return this.adjustTree(employee, i);
+        return this.adjustTree(employee, i, addOnUndo);
       } else if (employee.subordinates[i].subordinates.length) {
-        const obj = this.getEmployee(employee.subordinates[i], employeeID);
+        const obj = this.getEmployee(
+          employee.subordinates[i],
+          employeeID,
+          addOnUndo
+        );
         if (obj !== null) {
           return obj;
         }
@@ -87,7 +97,9 @@ class EmployeeOrgApp implements IEmployeeOrgApp {
       return;
     }
     this.setEmployee(this.ceo, supervisorID, employee);
-    this.undoAbles[this.undoAbles.length - 1].supervisorID = supervisorID;
+    if (this.undoAbles.length) {
+      this.undoAbles[this.undoAbles.length - 1].supervisorID = supervisorID;
+    }
     this.redoAbles = [];
   }
   moveForUndo(
@@ -125,11 +137,10 @@ class EmployeeOrgApp implements IEmployeeOrgApp {
     const obj = this.undoAbles.pop();
     if (obj !== undefined) {
       // { employeeID: 3, parentID: 2, supervisorID: -1, childeIDS: [ 4, 5 ] }
-      const employee = this.getEmployee(this.ceo, obj.employeeID);
+      const employee = this.getEmployee(this.ceo, obj.employeeID, false);
       if (employee !== null) {
         this.moveForUndo(this.ceo, employee, obj);
       }
-      // this.redoAbles.push(obj);
     } else {
       console.log("Nothing is undoable");
     }
@@ -138,7 +149,6 @@ class EmployeeOrgApp implements IEmployeeOrgApp {
     const obj = this.redoAbles.pop();
     if (obj !== undefined) {
       this.move(obj.employeeID, obj.supervisorID);
-      // this.undoAbles.push(obj);
     } else {
       console.log("Nothing is redoable");
     }
@@ -225,22 +235,22 @@ const ceo: Employee = {
   ],
 };
 /**
-  Mark Zuckerberg:
-      - Sarah Donald:
-          - Cassandra Reynolds:
-              - Mary Blue:
-              - Bob Saget:
-                  - Tina Teff:
-                      - Will Turner:
-      - Tyler Simpson:
-          - Harry Tobs:
-              - Thomas Brown:
-          - George Carrey:
-          - Gary Styles:
-      - Bruce Willis:
-      - Georgina Flangy:
-          - Sophie Turner:
-  */
+Mark Zuckerberg:
+    - Sarah Donald:
+        - Cassandra Reynolds:
+            - Mary Blue:
+            - Bob Saget:
+                - Tina Teff:
+                    - Will Turner:
+    - Tyler Simpson:
+        - Harry Tobs:
+            - Thomas Brown:
+        - George Carrey:
+        - Gary Styles:
+    - Bruce Willis:
+    - Georgina Flangy:
+        - Sophie Turner:
+*/
 
 const app = new EmployeeOrgApp(ceo);
 
@@ -248,13 +258,21 @@ app.print();
 console.log("");
 
 app.move(3, 10);
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");
 
 app.undo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");
 
 app.redo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
+app.print();
+console.log("");
+
+app.undo();
+// console.log(app.undoAbles, "\n", app.redoAbles);
 app.print();
 console.log("");
