@@ -1,4 +1,4 @@
-# frontendtask
+## Typescripttask
 
 Clone this project and run this command. to run this command you must have nodejs install in your meachine.
 
