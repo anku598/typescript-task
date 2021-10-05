@@ -1,3 +1,4 @@
+"use strict";
 var EmployeeOrgApp = /** @class */ (function () {
     function EmployeeOrgApp(ceo) {
         this.undoAbles = [];
@@ -10,7 +11,7 @@ var EmployeeOrgApp = /** @class */ (function () {
             employeeID: employee.uniqueId,
             parentID: supervisor.uniqueId,
             supervisorID: -1,
-            childeIDS: []
+            childeIDS: [],
         };
         while (employee.subordinates.length) {
             var obj = employee.subordinates.shift();
@@ -76,7 +77,7 @@ var EmployeeOrgApp = /** @class */ (function () {
                 employeeID: employee.uniqueId,
                 parentID: -1,
                 supervisorID: action.supervisorID,
-                childeIDS: []
+                childeIDS: [],
             });
             return true;
         }
@@ -145,7 +146,7 @@ var ceo = {
                         {
                             uniqueId: 4,
                             name: "Mary Blue",
-                            subordinates: []
+                            subordinates: [],
                         },
                         {
                             uniqueId: 5,
@@ -156,13 +157,13 @@ var ceo = {
                                     name: "Tina Teff",
                                     subordinates: [
                                         { uniqueId: 7, name: "Will Turner", subordinates: [] },
-                                    ]
+                                    ],
                                 },
-                            ]
+                            ],
                         },
-                    ]
+                    ],
                 },
-            ]
+            ],
         },
         {
             uniqueId: 8,
@@ -173,23 +174,23 @@ var ceo = {
                     name: "Harry Tobs",
                     subordinates: [
                         { uniqueId: 10, name: "Thomas Brown", subordinates: [] },
-                    ]
+                    ],
                 },
                 { uniqueId: 11, name: "George Carrey", subordinates: [] },
                 { uniqueId: 12, name: "Gary Styles", subordinates: [] },
-            ]
+            ],
         },
         {
             uniqueId: 13,
             name: "Bruce Willis",
-            subordinates: []
+            subordinates: [],
         },
         {
             uniqueId: 14,
             name: "Georgina Flangy",
-            subordinates: [{ uniqueId: 15, name: "Sophie Turner", subordinates: [] }]
+            subordinates: [{ uniqueId: 15, name: "Sophie Turner", subordinates: [] }],
         },
-    ]
+    ],
 };
 /**
   Mark Zuckerberg:
